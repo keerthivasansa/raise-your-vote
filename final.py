@@ -39,9 +39,9 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CRE
 creds = os.getenv("GOOGLE_APP_CREDENTIALS_ENV")
 if creds:
     fd, path = tempfile.mkstemp(suffix='.json')
+    creds = creds.replace('\\"', '"')
     with os.fdopen(fd, 'w') as tmp:
         tmp.write(creds)
-    creds = creds.replace('\\"', '"')
     print(path)
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = path
 
