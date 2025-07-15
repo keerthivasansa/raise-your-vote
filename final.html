@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Submission System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+    <link rel="stylesheet" href="/static/new.css">
+</head>
+<body>
+    <div class="container">
+      <div class="header">
+    <h1>
+        <img src="/static/logo.png" alt="Logo" class="logo">
+        RAISE VOTE FIX
+    </h1>
+    <p>Submit complaints anonymously with voice transcription, vote on issues, and make your voice heard</p>
+</div>
+
+
+        
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('submit', event)">Submit Complaint</button>
+                <button class="tab" onclick="showTab('browse', event)">Browse Complaints</button>
+                <button class="tab" onclick="showTab('stats', event)">Statistics</button>
+            </div>
+            
+            <div id="submit-tab" class="tab-content active">
+                <h2>Submit a New Complaint</h2>
+                <div id="submit-alert"></div>
+
+                <!-- Voice Transcription Section -->
+                <div class="voice-section">
+                    <h3>🌍 Voice to English Transcription</h3>
+                    
+                    <div class="voice-controls">
+                        <label for="language"><strong>Select Language:</strong></label>
+                        <select id="language" class="language-select">
+                            <option value="en">English</option>
+                            <option value="hi">Hindi</option>
+                            <option value="te">Telugu</option>
+                            <option value="ta">Tamil</option>
+                            <option value="kn">Kannada</option>
+                            <option value="ml">Malayalam</option>
+                            <option value="bn">Bengali</option>
+                            <option value="gu">Gujarati</option>
+                            <option value="mr">Marathi</option>
+                            <option value="pa">Punjabi</option>
+                        </select>
+                    </div>
+
+                    <div class="audio-controls">
+                        <button id="recordBtn" class="btn btn-primary">🎤 Start Recording</button>
+                        <button id="stopBtn" class="btn btn-danger" disabled>⏹ Stop Recording</button>
+                        <button id="playBtn" class="btn btn-secondary" disabled>▶ Play Recording</button>
+                        <button id="clearBtn" class="btn btn-warning" disabled>🗑 Clear Recording</button>
+                    </div>
+
+                    <div class="recording-indicator" id="recordingIndicator">
+                        🔴 Recording in progress... Speak now!
+                    </div>
+
+                    <div id="voiceAudioPlayer" class="audio-player" style="display: none;">
+                        <audio id="voiceAudio" controls></audio>
+                        <div class="audio-info">
+                            <span id="audioDuration">Duration: 0:00</span>
+                        </div>
+                    </div>
+
+                    <div class="loading-indicator" id="transcriptionLoading">
+                        <div class="spinner"></div>
+                        <p>⏳ Processing audio...</p>
+                    </div>
+
+                    <div class="transcription-results">
+                        <div id="originalResult" class="result-card" style="display:none;">
+                            <h4>📝 Original Text</h4>
+                            <p id="originalText"></p>
+                            <div class="result-meta">
+                                <span id="detectedLanguage"></span> | 
+                                <span id="confidence"></span>
+                            </div>
+                        </div>
+
+                        <div id="translatedResult" class="result-card" style="display:none;">
+                            <h4>📘 English Translation</h4>
+                            <p id="englishText"></p>
+                            <button id="copyBtn" class="btn btn-success">📋 Copy to Complaint</button>
+                        </div>
+                    </div>
+
+                    <div class="error-message" id="transcriptionError">
+                        <p id="errorText"></p>
+                    </div>
+                </div>
+                
+                <form id="complaint-form">
+                    <div class="form-group">
+                        <label for="state-select">State</label>
+                        <select id="state-select">
+                            <option value="India">India (National)</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Goa">Goa</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Himachal Pradesh">Himachal Pradesh</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Meghalaya">Meghalaya</option>
+                            <option value="Mizoram">Mizoram</option>
+                            <option value="Nagaland">Nagaland</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Sikkim">Sikkim</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Tripura">Tripura</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                            <option value="Chandigarh">Chandigarh</option>
+                            <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                            <option value="Ladakh">Ladakh</option>
+                            <option value="Lakshadweep">Lakshadweep</option>
+                            <option value="Puducherry">Puducherry</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="complaint-text">Complaint Description</label>
+                        <textarea id="complaint-text" placeholder="Describe your complaint in detail or use voice transcription above..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Photos (Maximum 2, .png, .jpg, .jpeg, .gif)</label>
+                        <div class="file-input">
+                            <input type="file" id="photos" accept="image/png,image/jpeg,image/gif" multiple>
+                            <label for="photos" class="file-input-label">
+                                📷 Choose Photos
+                            </label>
+                        </div>
+                        <div id="photo-preview" class="media-preview"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Submit Complaint</button>
+                </form>
+            </div>
+            
+            <div id="browse-tab" class="tab-content">
+                <h2>Browse Complaints</h2>
+                
+                <div class="filter-controls">
+                    <label for="state-filter">Filter by State:</label>
+                    <select id="state-filter">
+                        <option value="ALL">All States</option>
+                        <option value="India">India (National)</option>
+                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                        <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                        <option value="Assam">Assam</option>
+                        <option value="Bihar">Bihar</option>
+                        <option value="Chhattisgarh">Chhattisgarh</option>
+                        <option value="Goa">Goa</option>
+                        <option value="Gujarat">Gujarat</option>
+                        <option value="Haryana">Haryana</option>
+                        <option value="Himachal Pradesh">Himachal Pradesh</option>
+                        <option value="Jharkhand">Jharkhand</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Kerala">Kerala</option>
+                        <option value="Madhya Pradesh">Madhya Pradesh</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Manipur">Manipur</option>
+                        <option value="Meghalaya">Meghalaya</option>
+                        <option value="Mizoram">Mizoram</option>
+                        <option value="Nagaland">Nagaland</option>
+                        <option value="Odisha">Odisha</option>
+                        <option value="Punjab">Punjab</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Sikkim">Sikkim</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Telangana">Telangana</option>
+                        <option value="Tripura">Tripura</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="Uttarakhand">Uttarakhand</option>
+                        <option value="West Bengal">West Bengal</option>
+                        <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                        <option value="Chandigarh">Chandigarh</option>
+                        <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                        <option value="Ladakh">Ladakh</option>
+                        <option value="Lakshadweep">Lakshadweep</option>
+                        <option value="Puducherry">Puducherry</option>
+                    </select>
+                    <button onclick="loadComplaints()" class="btn btn-secondary">Refresh</button>
+                </div>
+                
+                <div id="complaints-container">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading complaints...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="stats-tab" class="tab-content">
+                <h2>System Statistics</h2>
+                <div id="stats-container">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading statistics...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+const API_BASE = 'http://127.0.0.1:5000/api';
+let anonymousId = '';
+let selectedPhotos = [];
+let voiceMediaRecorder;
+let voiceAudioChunks = [];
+let currentAudioBlob = null;
+let isVoiceRecording = false;
+
+async function initializeWalletAndFingerprint() {
+    try {
+        const fp = await FingerprintJS.load();
+        const result = await fp.get();
+        const fingerprint = result.visitorId;
+
+        let walletData = localStorage.getItem('burnerWallet');
+        let wallet;
+
+        if (!walletData) {
+            wallet = ethers.Wallet.createRandom();
+            localStorage.setItem('burnerWallet', JSON.stringify({
+                address: wallet.address,
+                privateKey: wallet.privateKey
+            }));
+        } else {
+            walletData = JSON.parse(walletData);
+            wallet = new ethers.Wallet(walletData.privateKey);
+        }
+
+        const combined = wallet.address + fingerprint;
+        anonymousId = ethers.utils.sha256(ethers.utils.toUtf8Bytes(combined));
+        console.log('Initialized anonymous ID:', anonymousId);
+    } catch (error) {
+        console.error('Error initializing wallet and fingerprint:', error);
+        showAlert('Failed to initialize anonymous ID. Please refresh the page.', 'error');
+    }
+}
+
+function handlePhotoSelection(event) {
+    const files = Array.from(event.target.files).slice(0, 2);
+    const maxSize = 16 * 1024 * 1024; // 16MB
+    selectedPhotos = [];
+    const preview = document.getElementById('photo-preview');
+    preview.innerHTML = '';
+
+    files.forEach(file => {
+        if (!['image/png', 'image/jpeg', 'image/gif'].includes(file.type)) {
+            showAlert('Only PNG, JPEG, and GIF images are allowed.', 'error');
+            return;
+        }
+        if (file.size > maxSize) {
+            showAlert(`Image ${file.name} exceeds 16MB limit.`, 'error');
+            return;
+        }
+        selectedPhotos.push(file);
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function setupVoiceTranscription() {
+    const recordBtn = document.getElementById('recordBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const playBtn = document.getElementById('playBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const copyBtn = document.getElementById('copyBtn');
+
+    recordBtn.addEventListener('click', startVoiceRecording);
+    stopBtn.addEventListener('click', stopVoiceRecording);
+    playBtn.addEventListener('click', playVoiceRecording);
+    clearBtn.addEventListener('click', clearVoiceRecording);
+    copyBtn.addEventListener('click', copyToComplaint);
+}
+
+async function loadComplaints() {
+    const container = document.getElementById("complaints-container");
+    container.innerHTML = `<div class="loading"><div class="spinner"></div><p>Loading complaints...</p></div>`;
+
+    const stateFilter = document.getElementById("state-filter").value;
+
+    try {
+        const res = await fetch(`${API_BASE}/get-complaints?state=${stateFilter}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+            container.innerHTML = `<p style="color:red; text-align:center;">${data.error || 'Failed to load complaints.'}</p>`;
+            return;
+        }
+
+        let complaints = data.complaints || [];
+
+        if (complaints.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding: 20px;">No complaints found for selected filter.</p>';
+            return;
+        }
+
+        container.innerHTML = `<div class="complaints-grid">
+            ${complaints.map(c => `
+                <div class="complaint-card" data-complaint-id="${c.id}">
+                    <div class="complaint-header">
+                        <strong>${c.description || 'No description available'}</strong>
+                        <span class="complaint-state">${c.state || 'India'}</span>
+                    </div>
+                    <div class="media-preview ${c.id}-media">
+                        ${c.photo_urls && c.photo_urls.length > 0 ? c.photo_urls.map(url => `<img src="${url}" alt="Complaint Photo" class="${c.id}-img">`).join('') : '<p>No images available</p>'}
+                    </div>
+                    <div class="complaint-footer">
+                        <span class="vote-count">👍 ${c.votes || 0}</span>
+                        <button class="btn btn-vote" onclick="voteComplaint('${c.id}', this, event)" ${c.voter_ids && c.voter_ids.includes(anonymousId) ? 'disabled' : ''}>Vote</button>
+                    </div>
+                    <div class="full-details ${c.id}-details">
+                        <p><strong>Full Description:</strong> ${c.complaint_text || 'No text available'}</p>
+                        <p><strong>State:</strong> ${c.state || 'India'}</p>
+                        <div class="complaint-labels ${c.id}-labels">${(c.labels || []).map(label => `<span class="label">${label}</span>`).join('') || '<span class="label">General</span>'}</div>
+                        <p><strong>Hashtags:</strong> ${c.hashtags ? c.hashtags.join(', ') : 'None'}</p>
+                        <p><strong>Votes:</strong> ${c.votes || 0}</p>
+                        ${c.photo_urls && c.photo_urls.length > 0 ? `<div class="media-preview expanded"><strong>Photos:</strong> ${c.photo_urls.map(url => `<img src="${url}" alt="Complaint Photo" class="expanded">`).join('')}</div>` : '<p>No images available</p>'}
+                        <button class="btn back-btn" onclick="toggleExpand('${c.id}', this.parentElement.parentElement, event)">Back</button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>`;
+
+        // Add click event listeners to cards
+        document.querySelectorAll('.complaint-card').forEach(card => {
+    card.addEventListener('click', (event) => {
+        if (!event.target.classList.contains('btn-vote') && !event.target.classList.contains('back-btn')) {
+            toggleExpand(card.dataset.complaintId, card, event);
+        }
+    });
+});
+    } catch (error) {
+        console.error("Error loading complaints:", error);
+        container.innerHTML = `<p style="color:red; text-align:center;">Failed to load complaints: ${error.message}. Try again later.</p>`;
+    }
+}
+
+function toggleExpand(complaintId, card, event) {
+    if (event) event.stopPropagation();
+    const details = card.querySelector(`.full-details`);
+    const media = card.querySelector(`.media-preview`);
+    const images = card.querySelectorAll(`img`);
+    const labels = card.querySelector(`.complaint-labels`);
+    const isExpanded = card.classList.contains('expanded');
+
+    document.querySelectorAll('.complaint-card').forEach(c => {
+        c.classList.remove('expanded');
+        c.style.height = '300px';
+        c.querySelector('.full-details').classList.remove('expanded');
+        c.querySelector('.media-preview').classList.remove('expanded');
+        c.querySelectorAll('img').forEach(img => img.classList.remove('expanded'));
+        c.querySelector('.complaint-labels').classList.remove('expanded');
+    });
+
+    if (!isExpanded) {
+        card.classList.add('expanded');
+        details.classList.add('expanded');
+        media.classList.add('expanded');
+        images.forEach(img => img.classList.add('expanded'));
+        labels.classList.add('expanded');
+        card.style.height = `${card.scrollHeight}px`;
+    }
+}
+
+async function voteComplaint(complaintId, button, event) {
+    event.stopPropagation();
+    try {
+        button.disabled = true;
+        const res = await fetch(`${API_BASE}/vote-complaint`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ complaint_id: complaintId, anonymous_id: anonymousId })
+        });
+        const data = await res.json();
+        if (data.success) {
+            const countSpan = button.parentElement.querySelector('.vote-count');
+            countSpan.textContent = `👍 ${data.votes || 0}`;
+            showAlert(data.message || "Vote recorded successfully!", "success");
+            if (data.threshold_reached) {
+                showAlert("Complaint posted to Twitter and removed.", "success");
+                setTimeout(loadComplaints, 1000);
+            }
+        } else {
+            showAlert(data.error || "Failed to vote.", "error");
+            button.disabled = false;
+        }
+    } catch (error) {
+        console.error("Voting error:", error);
+        showAlert(`Failed to record vote: ${error.message}`, "error");
+        button.disabled = false;
+    }
+}
+
+async function loadStats() {
+    const statsContainer = document.getElementById("stats-container");
+    statsContainer.innerHTML = `<div class="loading"><div class="spinner"></div><p>Loading statistics...</p></div>`;
+
+    try {
+        const res = await fetch(`${API_BASE}/stats`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+            statsContainer.innerHTML = `<p style="color:red; text-align:center;">${data.error || 'Failed to load statistics.'}</p>`;
+            return;
+        }
+
+        statsContainer.innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-number">${data.stats.total_complaints}</div><div class="stat-label">Total Complaints</div></div>
+                <div class="stat-card"><div class="stat-number">${data.stats.total_votes}</div><div class="stat-label">Total Votes</div></div>
+                <div class="stat-card"><div class="stat-number">${data.stats.posted_complaints}</div><div class="stat-label">Posted Complaints</div></div>
+                <div class="stat-card"><div class="stat-number">${data.stats.active_complaints}</div><div class="stat-label">Active Complaints</div></div>
+                <div class="stat-card"><div class="stat-number">${data.stats.twitter_posts_remaining}</div><div class="stat-label">Twitter Posts Remaining</div></div>
+                <div class="stat-card"><div class="stat-number">${Object.keys(data.stats.complaints_by_state).length}</div><div class="stat-label">States Covered</div></div>
+            </div>`;
+    } catch (error) {
+        console.error("Error loading stats:", error);
+        statsContainer.innerHTML = `<p style="color:red; text-align:center;">Failed to load statistics: ${error.message}</p>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+    await initializeWalletAndFingerprint();
+    loadComplaints();
+    loadStats();
+    setupEventListeners();
+    setupVoiceTranscription();
+});
+
+function submitComplaint(event) {
+    event.preventDefault();
+
+    const text = document.getElementById('complaint-text').value.trim();
+    const state = document.getElementById('state-select').value;
+    if (!text) {
+        showAlert("Complaint description is required.", "error");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('anonymous_id', anonymousId);
+    formData.append('complaint_text', text);
+    formData.append('state', state);
+    formData.append('timestamp', new Date().toISOString());
+    selectedPhotos.forEach((file, index) => {
+        formData.append(`photos`, file);
+    });
+
+    fetch(`${API_BASE}/submit-complaint`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showAlert("Complaint submitted successfully!", 'success');
+            document.getElementById('complaint-form').reset();
+            document.getElementById('photo-preview').innerHTML = '';
+            selectedPhotos = [];
+            loadComplaints();
+        } else {
+            showAlert(data.error || "Failed to submit complaint.", 'error');
+        }
+    })
+    .catch(error => {
+        console.error("Submission error:", error);
+        showAlert(`Failed to submit complaint: ${error.message}`, 'error');
+    });
+}
+
+function setupEventListeners() {
+    document.getElementById('complaint-form').addEventListener('submit', submitComplaint);
+    document.getElementById('photos').addEventListener('change', handlePhotoSelection);
+    document.getElementById('state-filter').addEventListener('change', loadComplaints);
+}
+
+function showTab(tabName, event) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.target.classList.add('active');
+    if (tabName === 'browse') loadComplaints();
+    else if (tabName === 'stats') loadStats();
+}
+
+function showAlert(message, type = 'success', containerId = 'submit-alert') {
+    const alertContainer = document.getElementById(containerId);
+    alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    setTimeout(() => { alertContainer.innerHTML = ''; }, 5000);
+}
+
+// Voice Transcription Functions
+async function startVoiceRecording() {
+    console.log('🎤 Voice recording started');
+    if (isVoiceRecording) {
+        stopVoiceRecording();
+        return;
+    }
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 } });
+        voiceMediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        voiceAudioChunks = [];
+        isVoiceRecording = true;
+
+        voiceMediaRecorder.ondataavailable = e => {
+            if (e.data.size > 0) voiceAudioChunks.push(e.data);
+        };
+
+        voiceMediaRecorder.onstop = () => {
+            stream.getTracks().forEach(track => track.stop());
+            currentAudioBlob = new Blob(voiceAudioChunks, { type: 'audio/webm' });
+            displayVoiceAudio(currentAudioBlob);
+            updateVoiceRecordingUI(false);
+            transcribeCurrentAudio();
+        };
+
+        voiceMediaRecorder.start(100);
+        updateVoiceRecordingUI(true);
+        showAlert('Voice recording started. Speak now!', 'info');
+    } catch (error) {
+        console.error('Voice recording error:', error);
+        showAlert('Could not access microphone. Please check permissions and try again.', 'error');
+        isVoiceRecording = false;
+        updateVoiceRecordingUI(false);
+    }
+}
+
+function stopVoiceRecording() {
+    if (voiceMediaRecorder && voiceMediaRecorder.state !== 'inactive') {
+        voiceMediaRecorder.stop();
+        isVoiceRecording = false;
+        showAlert('Voice recording stopped.', 'success');
+    }
+}
+
+function updateVoiceRecordingUI(recording) {
+    const recordBtn = document.getElementById('recordBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const playBtn = document.getElementById('playBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const indicator = document.getElementById('recordingIndicator');
+
+    if (recording) {
+        recordBtn.textContent = '🔴 Recording...';
+        recordBtn.classList.add('recording');
+        recordBtn.disabled = false;
+        stopBtn.disabled = false;
+        playBtn.disabled = true;
+        clearBtn.disabled = true;
+        indicator.classList.add('active');
+    } else {
+        recordBtn.textContent = '🎤 Start Recording';
+        recordBtn.classList.remove('recording');
+        recordBtn.disabled = false;
+        stopBtn.disabled = true;
+        playBtn.disabled = !currentAudioBlob;
+        clearBtn.disabled = !currentAudioBlob;
+        indicator.classList.remove('active');
+    }
+}
+
+async function displayVoiceAudio(audioBlob) {
+    const audioPlayer = document.getElementById('voiceAudioPlayer');
+    const voiceAudio = document.getElementById('voiceAudio');
+    const audioDuration = document.getElementById('audioDuration');
+
+    const audioUrl = URL.createObjectURL(audioBlob);
+    voiceAudio.src = audioUrl;
+    
+    voiceAudio.onloadedmetadata = () => {
+        const duration = Math.floor(voiceAudio.duration);
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        audioDuration.textContent = `Duration: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    audioPlayer.style.display = 'block';
+}
+
+function playVoiceRecording() {
+    if (currentAudioBlob) {
+        const voiceAudio = document.getElementById('voiceAudio');
+        voiceAudio.play();
+    }
+}
+
+function clearVoiceRecording() {
+    currentAudioBlob = null;
+    document.getElementById('voiceAudioPlayer').style.display = 'none';
+    document.getElementById('voiceAudio').src = '';
+    updateVoiceRecordingUI(false);
+    hideTranscriptionResults();
+    showAlert('Voice recording cleared.', 'info');
+}
+
+function transcribeCurrentAudio() {
+    if (!currentAudioBlob) {
+        showAlert('No audio to transcribe.', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('audio', currentAudioBlob, 'recording.webm');
+    formData.append('language', document.getElementById('language').value);
+
+    showTranscriptionLoading();
+
+    fetch(`${API_BASE}/transcribe`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTranscriptionLoading();
+        if (data.success) {
+            showTranscriptionResults(data);
+            const complaintTextArea = document.getElementById('complaint-text');
+            if (!complaintTextArea.value.trim()) {
+                complaintTextArea.value = data.english_text;
+            } else {
+                complaintTextArea.value += '\n\n' + data.english_text;
+            }
+        } else {
+            showAlert(data.error || 'Transcription failed.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Transcription error:', error);
+        hideTranscriptionLoading();
+        showAlert(`Transcription failed: ${error.message}`, 'error');
+    });
+}
+
+function showTranscriptionLoading() {
+    document.getElementById('transcriptionLoading').style.display = 'block';
+    document.getElementById('transcriptionError').style.display = 'none';
+}
+
+function hideTranscriptionLoading() {
+    document.getElementById('transcriptionLoading').style.display = 'none';
+}
+
+function showTranscriptionResults(result) {
+    document.getElementById('originalText').textContent = result.original_text || 'No text detected';
+    document.getElementById('detectedLanguage').textContent = `Detected: ${result.detected_language || 'Unknown'}`;
+    document.getElementById('confidence').textContent = `Confidence: ${(result.confidence * 100).toFixed(1)}%`;
+    document.getElementById('originalResult').style.display = 'block';
+
+    if (result.english_text && result.english_text !== result.original_text) {
+        document.getElementById('englishText').textContent = result.english_text;
+        document.getElementById('translatedResult').style.display = 'block';
+    } else {
+        document.getElementById('translatedResult').style.display = 'none';
+    }
+}
+
+function hideTranscriptionResults() {
+    document.getElementById('originalResult').style.display = 'none';
+    document.getElementById('translatedResult').style.display = 'none';
+    document.getElementById('transcriptionError').style.display = 'none';
+}
+
+function copyToComplaint() {
+    const englishText = document.getElementById('englishText').textContent;
+    const complaintTextArea = document.getElementById('complaint-text');
+    if (complaintTextArea.value.trim()) {
+        complaintTextArea.value += '\n\n' + englishText;
+    } else {
+        complaintTextArea.value = englishText;
+    }
+    showAlert('Text copied to complaint form!', 'success');
+}
+</script>
+</body>
+</html>
