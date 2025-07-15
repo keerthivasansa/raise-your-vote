@@ -88,8 +88,7 @@ class TwitterAgent:
 
             media_ids = []
             image_path = complaint.get('image_path')
-            print('sending to twitter')
-            print(complaint)
+            logger.info('sending complaint: ', complaint)
             if image_path and os.path.exists(image_path):
                 try:
                     media = api.media_upload(image_path)
